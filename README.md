@@ -2,8 +2,6 @@
 
 ---
 
-# 📝 FamPay SRE Assignment Documentation (Final Submission)
-
 ## Table of Contents
 
 1. [Project Overview](#project-overview)
@@ -87,18 +85,18 @@ EXPOSE 5000
 
 CMD ["gunicorn", "backend.wsgi:application", "--bind", "0.0.0.0:5000"]
 ```
-## ✅ Unified Path-Based Routing Solution (EC2 + NGINX + SSL)
+## Unified Path-Based Routing Solution (EC2 + NGINX + SSL)
 
 To unify the access to both services (`bran` and `hodor`) under a **single domain** with path-based routing, an EC2 instance was provisioned and configured with **NGINX and SSL certificates via Let's Encrypt**.
 
-### ✅ Final Access URLs
+### Final Access URLs
 
 * **Bran**: [https://pay.famprotocol.org/bran/](https://pay.famprotocol.org/bran/)
 * **Hodor**: [https://pay.famprotocol.org/hodor/](https://pay.famprotocol.org/hodor/)
 
 ---
 
-### 🔧 NGINX Configuration
+### NGINX Configuration
 
 The following NGINX configuration is used on the EC2 instance:
 
@@ -170,7 +168,7 @@ server {
 
 ---
 
-### 🔐 SSL Setup with Certbot
+### SSL Setup with Certbot
 
 ```bash
 sudo yum install certbot python3-certbot-nginx -y
@@ -181,7 +179,7 @@ DNS record `pay.famprotocol.org` was configured in **Route 53** to point to the 
 
 ---
 
-### 📈 Scalability Strategy
+### Scalability Strategy
 
 The EC2 + NGINX proxy can be scaled in two ways:
 
@@ -193,7 +191,7 @@ The EC2 + NGINX proxy can be scaled in two ways:
 
 ---
 
-### 🎯 Why This Design Works Well
+### Why This Design Works Well
 
 * **No changes** needed to the EKS/Kubernetes setup
 * Centralized domain with unified SSL
