@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-bran-to-hodor
+  namespace: fampay
+spec:
+  podSelector:
+    matchLabels:
+      app: hodor
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: bran
+    ports:
+    - protocol: TCP
+      port: 8888
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-external-to-both
+  namespace: fampay
+spec:
+  podSelector:
+    matchLabels: {}
+  ingress:
+  - from:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+    ports:
+    - protocol: TCP
+      port: 5000
+    - protocol: TCP
+      port: 8888

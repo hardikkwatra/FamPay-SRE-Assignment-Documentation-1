@@ -1,0 +1,82 @@
+# external-lb.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-lb
+  namespace: fampay
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+    service.beta.kubernetes.io/aws-load-balancer-name: "fampay-nlb"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    # This annotation is crucial - it tells Kubernetes to use your existing load balancer
+    service.beta.kubernetes.io/aws-load-balancer-id: "fampay-nlb-2a18e2dcd0259942"
+spec:
+  type: LoadBalancer
+  ports:
+  - name: bran
+    port: 5000
+    targetPort: 5000
+    protocol: TCP
+  - name: hodor
+    port: 8888
+    targetPort: 8888
+    protocol: TCP
+  selector:
+    app: lb-proxy
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lb-proxy
+  namespace: fampay
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lb-proxy
+  template:
+    metadata:
+      labels:
+        app: lb-proxy
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 5000
+        - containerPort: 8888
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: fampay
+data:
+  default.conf: |
+    server {
+      listen 5000;
+      
+      location / {
+        proxy_pass http://bran:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+      }
+    }
+    
+    server {
+      listen 8888;
+      
+      location / {
+        proxy_pass http://hodor:8888;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+      }
+    }

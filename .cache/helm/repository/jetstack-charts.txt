@@ -1,0 +1,12 @@
+cert-manager-csi-driver
+cert-manager-csi-driver-spiffe
+cert-manager-istio-csr
+finops-policies
+cert-manager
+cert-manager-google-cas-issuer
+cert-manager-trust
+finops-dashboards
+finops-stack
+trust-manager
+version-checker
+cert-manager-approver-policy

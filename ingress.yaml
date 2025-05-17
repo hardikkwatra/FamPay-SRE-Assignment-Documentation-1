@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fampay-ingress
+  namespace: fampay
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+  - host: pay.famprotocol.org
+    http:
+      paths:
+      - path: /bran(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: bran
+            port:
+              number: 5000
+      - path: /hodor(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: hodor
+            port:
+              number: 8888
