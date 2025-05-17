@@ -189,6 +189,46 @@ DNS record `pay.famprotocol.org` was configured in **Route 53** to point to the 
 
 ---
 
+### Is Scaling the EC2 NGINX Instance Necessary?
+
+#### **In the Current Setup — Not Immediately Necessary**
+
+* The **NGINX on EC2 is acting as a lightweight reverse proxy**, simply forwarding requests to a **Kubernetes Load Balancer (ELB)** that already handles the actual workload and scaling.
+* **Your EKS services (`bran`, `hodor`) are the ones doing the heavy lifting**, and they already have horizontal pod autoscaling and cluster autoscaling enabled.
+* NGINX has very low resource usage when only routing traffic (no heavy SSL termination, rate limiting, caching, etc.).
+* You are also protected by the AWS ELB in front of the pods — which **already scales horizontally and across AZs**.
+
+> **Conclusion:** For current traffic levels and use case, **a single EC2 instance is enough**, as it just passes requests through. No need for auto scaling unless you expect heavy spikes in concurrent HTTPS connections.
+
+---
+
+### When EC2 Auto-Scaling *Would* Be Useful
+
+* If the **reverse proxy layer handles more CPU-intensive features** like:
+
+  * SSL termination for **many** concurrent connections
+  * Authentication
+  * Rate limiting, caching, logging
+* If **latency-sensitive workloads** run close to the proxy layer
+* If you're deploying **NGINX as an API gateway** with advanced filters/rules
+* If you want to ensure **high availability** in case of EC2 failure
+
+---
+
+> ### EC2 Scalability (Optional)
+>
+> While scaling the EC2 instance running NGINX is not strictly required for this setup, as all application traffic is load-balanced by AWS ELB and handled by EKS pods, auto-scaling can be added if:
+>
+> * You expect high concurrent traffic at the proxy level
+> * You want to introduce high availability (e.g., in case the EC2 instance crashes)
+> * You plan to handle TLS termination or advanced logic at the NGINX layer
+>
+> For current usage, a single small EC2 instance (e.g., t3.micro or t3.small) is sufficient.
+
+---
+
+Let me know if you'd like me to revise the document again to reflect this streamlined explanation.
+
 ### Why This Design Works Well
 
 * **No changes** needed to the EKS/Kubernetes setup
