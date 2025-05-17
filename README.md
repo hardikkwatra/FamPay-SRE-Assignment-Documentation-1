@@ -1,164 +1,24 @@
 ### FamPay SRE Assignment Documentation (Final Submission)
 
+---
+
+# 📝 FamPay SRE Assignment Documentation (Final Submission)
 
 ## Table of Contents
 
 1. [Project Overview](#project-overview)
 2. [Architecture](#architecture)
 3. [Orchestration and Deployment Strategy](#orchestration-and-deployment-strategy)
-4. [Continuous Delivery Pipeline](#continuous-delivery-pipeline)
-5. [Auto-scaling Strategy](#auto-scaling-strategy)
-6. [Monitoring, Logging, and Alerting](#monitoring-logging-and-alerting)
-7. [Secret Management](#secret-management)
-8. [Network Policies](#network-policies)
-9. [Installation and Usage Guide](#installation-and-usage-guide)
-10. [Personal Insights (Optional)](#personal-insights-optional)
-
-    
-> **Note:** Due to an unexpected AWS account restriction (see image below), I was unable to complete just one portion of the assignment related to setting up path-based routing using EC2 and NGINX. However, I've provided a detailed, scalable alternative implementation approach that complements the existing Kubernetes-based setup without requiring any changes to the deployed services.
-
-![Account Blocked Screenshot](./Screenshot%202025-05-17%20093730.png)
+4. [Unified Path-Based Routing Solution (EC2 + NGINX + SSL)](#unified-path-based-routing-solution-ec2--nginx--ssl)
+5. [Continuous Delivery Pipeline](#continuous-delivery-pipeline)
+6. [Auto-scaling Strategy](#auto-scaling-strategy)
+7. [Monitoring, Logging, and Alerting](#monitoring-logging-and-alerting)
+8. [Secret Management](#secret-management)
+9. [Network Policies](#network-policies)
+10. [Installation and Usage Guide](#installation-and-usage-guide)
+11. [Personal Insights (Optional)](#personal-insights-optional)
 
 ---
-
-## Additional Solution: Path-Based Routing via EC2 + NGINX (No Change Required in Existing Kubernetes Setup)
-
-To ensure both the `bran` and `hodor` services are accessible via a **single URL** using path-based routing, I propose an alternative method using an **EC2 instance with NGINX** as a reverse proxy.
-
-This solution complements the current Kubernetes deployment and only involves setting up a proxy layer — no modifications are needed to the existing cluster or services.
-
----
-
-###  Overview
-
-Instead of exposing services directly on different ports, an EC2 instance runs NGINX and forwards traffic to the respective services based on the URL path:
-
-* `http://<ec2-ip>/bran/` → proxies to `bran` service (port 5000)
-* `http://<ec2-ip>/hodor/` → proxies to `hodor` service (port 8888)
-
-This acts as a central entry point to route traffic appropriately.
-
----
-
-### Architecture Diagram
-
-```
-           ┌──────────────┐
-           │   Internet   │
-           └────┬─────────┘
-                │
-       ┌────────▼────────┐
-       │   EC2 (NGINX)   │
-       └────┬────┬───────┘
-            │    │
-      ┌─────▼─┐ ┌▼───────┐
-      │ Bran  │ │ Hodor  │
-      └───────┘ └────────┘
-```
-
----
-
-### NGINX Configuration
-
-```nginx
-server {
-    listen 80;
-    server_name _;
-
-    location /bran/ {
-        proxy_pass http://<bran-elb>:5000/;
-        rewrite ^/bran/(.*) /$1 break;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-
-    location /hodor/ {
-        proxy_pass http://<hodor-elb>:8888/;
-        rewrite ^/hodor/(.*) /$1 break;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-
-    location = / {
-        return 301 /bran/;
-    }
-}
-```
-
-> Replace `<bran-elb>` and `<hodor-elb>` with the actual Load Balancer DNS names provided in the Kubernetes output.
-
----
-
-### Scalability Strategy
-
-This EC2 + NGINX setup can be made scalable and production-ready in two ways:
-
-#### Option A: Auto Scaling Group
-
-1. Create an AMI of the EC2 instance after NGINX setup
-2. Define a launch template with User Data:
-
-```bash
-#!/bin/bash
-yum update -y
-yum install nginx -y
-systemctl start nginx
-systemctl enable nginx
-```
-
-3. Configure Auto Scaling Group for multiple AZs with min/max capacity.
-
-#### Option B: Use an Application Load Balancer (Recommended)
-
-1. Place EC2 (NGINX) behind an ALB
-2. ALB listens on HTTP(S) and forwards to EC2
-3. Configure target group and health checks
-
----
-
-### Security
-
-* Allow inbound access on ports 80/443 in EC2 Security Group
-* Restrict SSH (port 22) to your IP only
-* (Optional) Use Let’s Encrypt with Certbot to enable HTTPS
-
-```bash
-sudo yum install certbot python3-certbot-nginx -y
-sudo certbot --nginx -d example.com -d www.example.com
-```
-
----
-
-### Final URL Access Pattern
-
-After setup, users can access the services using:
-
-* `http://<ec2-public-ip>/bran/` → Bran (Django)
-* `http://<ec2-public-ip>/hodor/` → Hodor (Go)
-
-This approach satisfies the **single-URL requirement** with path-based routing and integrates seamlessly with the existing Kubernetes-managed services without any internal reconfiguration.
-
----
-
-### Why This Works Well
-
-* Simple, modular addition to existing architecture
-* Decouples path-routing from Kubernetes (no need for Ingress controller setup)
-* Can be auto-scaled and monitored independently
-* Flexible for future expansion (`/api/`, `/admin/`, etc.)
-
----
-
-### Summary
-
-The EC2 + NGINX method is a clean and scalable solution to achieve path-based routing without disrupting the existing Kubernetes deployments. Although I could not deploy it due to AWS account lockout, the proposed design is robust, scalable, and easy to integrate.
-
----
-
-*(Rest of the original assignment content continues below this section unchanged...)*
-
-
-### FamPay SRE Assignment Documentation
 
 ## Project Overview
 
@@ -227,6 +87,126 @@ EXPOSE 5000
 
 CMD ["gunicorn", "backend.wsgi:application", "--bind", "0.0.0.0:5000"]
 ```
+## ✅ Unified Path-Based Routing Solution (EC2 + NGINX + SSL)
+
+To unify the access to both services (`bran` and `hodor`) under a **single domain** with path-based routing, an EC2 instance was provisioned and configured with **NGINX and SSL certificates via Let's Encrypt**.
+
+### ✅ Final Access URLs
+
+* **Bran**: [https://pay.famprotocol.org/bran/](https://pay.famprotocol.org/bran/)
+* **Hodor**: [https://pay.famprotocol.org/hodor/](https://pay.famprotocol.org/hodor/)
+
+---
+
+### 🔧 NGINX Configuration
+
+The following NGINX configuration is used on the EC2 instance:
+
+```nginx
+# HTTP block (Certbot validation)
+server {
+    listen 80;
+    server_name pay.famprotocol.org;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location /bran/ {
+        proxy_pass http://<ELB-DNS>:5000/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /hodor/ {
+        proxy_pass http://<ELB-DNS>:8888/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location = / {
+        return 301 /bran/;
+    }
+}
+
+# HTTPS block with SSL termination
+server {
+    listen 443 ssl http2;
+    server_name pay.famprotocol.org;
+
+    ssl_certificate /etc/letsencrypt/live/pay.famprotocol.org/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/pay.famprotocol.org/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+
+    location /bran/ {
+        proxy_pass http://<ELB-DNS>:5000/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /hodor/ {
+        proxy_pass http://<ELB-DNS>:8888/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location = / {
+        return 301 /bran/;
+    }
+}
+```
+
+> Replace `<ELB-DNS>` with:
+> `ac82ac77f794a4ddb9d8a8debc2da7a5-232ba7fb52ab3ca7.elb.us-west-2.amazonaws.com`
+
+---
+
+### 🔐 SSL Setup with Certbot
+
+```bash
+sudo yum install certbot python3-certbot-nginx -y
+sudo certbot --nginx -d pay.famprotocol.org
+```
+
+DNS record `pay.famprotocol.org` was configured in **Route 53** to point to the EC2 instance’s public IP.
+
+---
+
+### 📈 Scalability Strategy
+
+The EC2 + NGINX proxy can be scaled in two ways:
+
+#### EC2 Auto Scaling Group
+
+* Create an AMI after configuration
+* Launch an Auto Scaling Group using this AMI
+* Use a Load Balancer to distribute traffic across multiple EC2 instances
+
+---
+
+### 🎯 Why This Design Works Well
+
+* **No changes** needed to the EKS/Kubernetes setup
+* Centralized domain with unified SSL
+* Easily extensible to add more services (`/api/`, `/admin/`, etc.)
+* Independent scalability of the proxy layer
+* Easier certificate management via Certbot
+
+---
+
+### Accessing the Services
+
+* Bran: [https://pay.famprotocol.org/bran/](https://pay.famprotocol.org/bran/)
+* Hodor: [https://pay.famprotocol.org/hodor/](https://pay.famprotocol.org/hodor/)
 
 #### Hodor Dockerfile (GoLang Service)
 
