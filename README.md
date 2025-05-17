@@ -181,8 +181,6 @@ DNS record `pay.famprotocol.org` was configured in **Route 53** to point to the 
 
 ### Scalability Strategy
 
-The EC2 + NGINX proxy can be scaled in two ways:
-
 #### EC2 Auto Scaling Group
 
 * Create an AMI after configuration
