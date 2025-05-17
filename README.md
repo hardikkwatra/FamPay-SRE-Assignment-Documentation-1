@@ -767,7 +767,7 @@ kubectl port-forward svc/kind-prometheus-grafana -n monitoring 31000:80 --addres
 
 Prometheus is accessible at: [http://44.246.198.208:9090/query](http://44.246.198.208:9090/query)
 
-## Screenshots
+## Grafana supporting Screenshots:
 
 ![Screenshot 1](Screenshot%20(246).png)
 
