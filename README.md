@@ -355,18 +355,13 @@ The continuous delivery pipeline automates the process of building, testing, and
 ### CI/CD Pipeline Architecture
 
 ```mermaid
-Diagram.download-icon {
-            cursor: pointer;
-            transform-origin: center;
-        }
-        .download-icon .arrow-part {
-            transition: transform 0.35s cubic-bezier(0.35, 0.2, 0.14, 0.95);
-             transform-origin: center;
-        }
-        button:has(.download-icon):hover .download-icon .arrow-part, button:has(.download-icon):focus-visible .download-icon .arrow-part {
-          transform: translateY(-1.5px);
-        }
-        #mermaid-diagram-r3ev{font-family:var(--font-geist-sans);font-size:12px;fill:#000000;}#mermaid-diagram-r3ev .error-icon{fill:#552222;}#mermaid-diagram-r3ev .error-text{fill:#552222;stroke:#552222;}#mermaid-diagram-r3ev .edge-thickness-normal{stroke-width:1px;}#mermaid-diagram-r3ev .edge-thickness-thick{stroke-width:3.5px;}#mermaid-diagram-r3ev .edge-pattern-solid{stroke-dasharray:0;}#mermaid-diagram-r3ev .edge-thickness-invisible{stroke-width:0;fill:none;}#mermaid-diagram-r3ev .edge-pattern-dashed{stroke-dasharray:3;}#mermaid-diagram-r3ev .edge-pattern-dotted{stroke-dasharray:2;}#mermaid-diagram-r3ev .marker{fill:#666;stroke:#666;}#mermaid-diagram-r3ev .marker.cross{stroke:#666;}#mermaid-diagram-r3ev svg{font-family:var(--font-geist-sans);font-size:12px;}#mermaid-diagram-r3ev p{margin:0;}#mermaid-diagram-r3ev .label{font-family:var(--font-geist-sans);color:#000000;}#mermaid-diagram-r3ev .cluster-label text{fill:#333;}#mermaid-diagram-r3ev .cluster-label span{color:#333;}#mermaid-diagram-r3ev .cluster-label span p{background-color:transparent;}#mermaid-diagram-r3ev .label text,#mermaid-diagram-r3ev span{fill:#000000;color:#000000;}#mermaid-diagram-r3ev .node rect,#mermaid-diagram-r3ev .node circle,#mermaid-diagram-r3ev .node ellipse,#mermaid-diagram-r3ev .node polygon,#mermaid-diagram-r3ev .node path{fill:#eee;stroke:#999;stroke-width:1px;}#mermaid-diagram-r3ev .rough-node .label text,#mermaid-diagram-r3ev .node .label text{text-anchor:middle;}#mermaid-diagram-r3ev .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#mermaid-diagram-r3ev .node .label{text-align:center;}#mermaid-diagram-r3ev .node.clickable{cursor:pointer;}#mermaid-diagram-r3ev .arrowheadPath{fill:#333333;}#mermaid-diagram-r3ev .edgePath .path{stroke:#666;stroke-width:2.0px;}#mermaid-diagram-r3ev .flowchart-link{stroke:#666;fill:none;}#mermaid-diagram-r3ev .edgeLabel{background-color:white;text-align:center;}#mermaid-diagram-r3ev .edgeLabel p{background-color:white;}#mermaid-diagram-r3ev .edgeLabel rect{opacity:0.5;background-color:white;fill:white;}#mermaid-diagram-r3ev .labelBkg{background-color:rgba(255, 255, 255, 0.5);}#mermaid-diagram-r3ev .cluster rect{fill:hsl(0, 0%, 98.9215686275%);stroke:#707070;stroke-width:1px;}#mermaid-diagram-r3ev .cluster text{fill:#333;}#mermaid-diagram-r3ev .cluster span{color:#333;}#mermaid-diagram-r3ev div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:var(--font-geist-sans);font-size:12px;background:hsl(-160, 0%, 93.3333333333%);border:1px solid #707070;border-radius:2px;pointer-events:none;z-index:100;}#mermaid-diagram-r3ev .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#000000;}#mermaid-diagram-r3ev .flowchart-link{stroke:hsl(var(--gray-400));stroke-width:1px;}#mermaid-diagram-r3ev .marker,#mermaid-diagram-r3ev marker,#mermaid-diagram-r3ev marker *{fill:hsl(var(--gray-400))!important;stroke:hsl(var(--gray-400))!important;}#mermaid-diagram-r3ev .label,#mermaid-diagram-r3ev text,#mermaid-diagram-r3ev text>tspan{fill:hsl(var(--black))!important;color:hsl(var(--black))!important;}#mermaid-diagram-r3ev .background,#mermaid-diagram-r3ev rect.relationshipLabelBox{fill:hsl(var(--white))!important;}#mermaid-diagram-r3ev .entityBox,#mermaid-diagram-r3ev .attributeBoxEven{fill:hsl(var(--gray-150))!important;}#mermaid-diagram-r3ev .attributeBoxOdd{fill:hsl(var(--white))!important;}#mermaid-diagram-r3ev .label-container,#mermaid-diagram-r3ev rect.actor{fill:hsl(var(--white))!important;stroke:hsl(var(--gray-400))!important;}#mermaid-diagram-r3ev line{stroke:hsl(var(--gray-400))!important;}#mermaid-diagram-r3ev :root{--mermaid-font-family:var(--font-geist-sans);}Developer PushBuild &amp; TestBuild Docker ImagesPush to Docker HubDeploy to KubernetesRun Integration TestsMonitor Deployment
+graph TD
+    A[Developer Push] --> B[Build & Test]
+    B --> C[Build Docker Images]
+    C --> D[Push to Docker Hub]
+    D --> E[Deploy to Kubernetes]
+    E --> F[Run Integration Tests]
+    F --> G[Monitor Deployment]
 ```
 
 ### Implementation with GitHub Actions
