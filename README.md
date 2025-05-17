@@ -1,5 +1,20 @@
 ### FamPay SRE Assignment Documentation (Final Submission)
 
+
+## Table of Contents
+
+1. [Project Overview](#project-overview)
+2. [Architecture](#architecture)
+3. [Orchestration and Deployment Strategy](#orchestration-and-deployment-strategy)
+4. [Continuous Delivery Pipeline](#continuous-delivery-pipeline)
+5. [Auto-scaling Strategy](#auto-scaling-strategy)
+6. [Monitoring, Logging, and Alerting](#monitoring-logging-and-alerting)
+7. [Secret Management](#secret-management)
+8. [Network Policies](#network-policies)
+9. [Installation and Usage Guide](#installation-and-usage-guide)
+10. [Personal Insights (Optional)](#personal-insights-optional)
+
+    
 > **Note:** Due to an unexpected AWS account restriction (see image below), I was unable to complete just one portion of the assignment related to setting up path-based routing using EC2 and NGINX. However, I've provided a detailed, scalable alternative implementation approach that complements the existing Kubernetes-based setup without requiring any changes to the deployed services.
 
 ![Account Blocked Screenshot](./Screenshot%202025-05-17%20093730.png)
@@ -144,20 +159,6 @@ The EC2 + NGINX method is a clean and scalable solution to achieve path-based ro
 
 
 ### FamPay SRE Assignment Documentation
-
-## Table of Contents
-
-1. [Project Overview](#project-overview)
-2. [Architecture](#architecture)
-3. [Orchestration and Deployment Strategy](#orchestration-and-deployment-strategy)
-4. [Continuous Delivery Pipeline](#continuous-delivery-pipeline)
-5. [Auto-scaling Strategy](#auto-scaling-strategy)
-6. [Monitoring, Logging, and Alerting](#monitoring-logging-and-alerting)
-7. [Secret Management](#secret-management)
-8. [Network Policies](#network-policies)
-9. [Installation and Usage Guide](#installation-and-usage-guide)
-10. [Personal Insights (Optional)](#personal-insights-optional)
-
 
 ## Project Overview
 
