@@ -14,7 +14,7 @@ This solution complements the current Kubernetes deployment and only involves se
 
 ---
 
-### 🔧 Overview
+###  Overview
 
 Instead of exposing services directly on different ports, an EC2 instance runs NGINX and forwards traffic to the respective services based on the URL path:
 
@@ -25,7 +25,7 @@ This acts as a central entry point to route traffic appropriately.
 
 ---
 
-### 🌐 Architecture Diagram
+### Architecture Diagram
 
 ```
            ┌──────────────┐
@@ -43,7 +43,7 @@ This acts as a central entry point to route traffic appropriately.
 
 ---
 
-### 🧩 NGINX Configuration
+### NGINX Configuration
 
 ```nginx
 server {
@@ -74,7 +74,7 @@ server {
 
 ---
 
-### 📈 Scalability Strategy
+### Scalability Strategy
 
 This EC2 + NGINX setup can be made scalable and production-ready in two ways:
 
@@ -101,7 +101,7 @@ systemctl enable nginx
 
 ---
 
-### 🔒 Security
+### Security
 
 * Allow inbound access on ports 80/443 in EC2 Security Group
 * Restrict SSH (port 22) to your IP only
@@ -114,7 +114,7 @@ sudo certbot --nginx -d example.com -d www.example.com
 
 ---
 
-### 🧪 Final URL Access Pattern
+### Final URL Access Pattern
 
 After setup, users can access the services using:
 
@@ -125,7 +125,7 @@ This approach satisfies the **single-URL requirement** with path-based routing a
 
 ---
 
-### ✅ Why This Works Well
+### Why This Works Well
 
 * Simple, modular addition to existing architecture
 * Decouples path-routing from Kubernetes (no need for Ingress controller setup)
@@ -134,7 +134,7 @@ This approach satisfies the **single-URL requirement** with path-based routing a
 
 ---
 
-### ✅ Summary
+### Summary
 
 The EC2 + NGINX method is a clean and scalable solution to achieve path-based routing without disrupting the existing Kubernetes deployments. Although I could not deploy it due to AWS account lockout, the proposed design is robust, scalable, and easy to integrate.
 
