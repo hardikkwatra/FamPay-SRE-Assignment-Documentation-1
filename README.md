@@ -1,27 +1,33 @@
-FamPay SRE Assignment Documentation (Final Submission)
+### FamPay SRE Assignment Documentation (Final Submission)
 
-Note: Due to an unexpected AWS account restriction (see image below), I was unable to complete just one portion of the assignment related to setting up path-based routing using EC2 and NGINX. However, I've provided a detailed, scalable alternative implementation approach that complements the existing Kubernetes-based setup without requiring any changes to the deployed services.
+> **Note:** Due to an unexpected AWS account restriction (see image below), I was unable to complete just one portion of the assignment related to setting up path-based routing using EC2 and NGINX. However, I've provided a detailed, scalable alternative implementation approach that complements the existing Kubernetes-based setup without requiring any changes to the deployed services.
 
+![Account Blocked Screenshot](./Screenshot%202025-05-17%20093730.png)
 
+---
 
-Additional Solution: Path-Based Routing via EC2 + NGINX (No Change Required in Existing Kubernetes Setup)
+## Additional Solution: Path-Based Routing via EC2 + NGINX (No Change Required in Existing Kubernetes Setup)
 
-To ensure both the bran and hodor services are accessible via a single URL using path-based routing, I propose an alternative method using an EC2 instance with NGINX as a reverse proxy.
+To ensure both the `bran` and `hodor` services are accessible via a **single URL** using path-based routing, I propose an alternative method using an **EC2 instance with NGINX** as a reverse proxy.
 
 This solution complements the current Kubernetes deployment and only involves setting up a proxy layer — no modifications are needed to the existing cluster or services.
 
-🔧 Overview
+---
+
+### 🔧 Overview
 
 Instead of exposing services directly on different ports, an EC2 instance runs NGINX and forwards traffic to the respective services based on the URL path:
 
-http://<ec2-ip>/bran/ → proxies to bran service (port 5000)
-
-http://<ec2-ip>/hodor/ → proxies to hodor service (port 8888)
+* `http://<ec2-ip>/bran/` → proxies to `bran` service (port 5000)
+* `http://<ec2-ip>/hodor/` → proxies to `hodor` service (port 8888)
 
 This acts as a central entry point to route traffic appropriately.
 
-🌐 Architecture Diagram
+---
 
+### 🌐 Architecture Diagram
+
+```
            ┌──────────────┐
            │   Internet   │
            └────┬─────────┘
@@ -33,9 +39,13 @@ This acts as a central entry point to route traffic appropriately.
       ┌─────▼─┐ ┌▼───────┐
       │ Bran  │ │ Hodor  │
       └───────┘ └────────┘
+```
 
-🧩 NGINX Configuration
+---
 
+### 🧩 NGINX Configuration
+
+```nginx
 server {
     listen 80;
     server_name _;
@@ -58,65 +68,80 @@ server {
         return 301 /bran/;
     }
 }
+```
 
-Replace <bran-elb> and <hodor-elb> with the actual Load Balancer DNS names provided in the Kubernetes output.
+> Replace `<bran-elb>` and `<hodor-elb>` with the actual Load Balancer DNS names provided in the Kubernetes output.
 
-📈 Scalability Strategy
+---
+
+### 📈 Scalability Strategy
 
 This EC2 + NGINX setup can be made scalable and production-ready in two ways:
 
-Option A: Auto Scaling Group
+#### Option A: Auto Scaling Group
 
-Create an AMI of the EC2 instance after NGINX setup
+1. Create an AMI of the EC2 instance after NGINX setup
+2. Define a launch template with User Data:
 
-Define a launch template with User Data:
-
+```bash
 #!/bin/bash
 yum update -y
 yum install nginx -y
 systemctl start nginx
 systemctl enable nginx
+```
 
-Configure Auto Scaling Group for multiple AZs with min/max capacity.
+3. Configure Auto Scaling Group for multiple AZs with min/max capacity.
 
-Option B: Use an Application Load Balancer (Recommended)
+#### Option B: Use an Application Load Balancer (Recommended)
 
-Place EC2 (NGINX) behind an ALB
+1. Place EC2 (NGINX) behind an ALB
+2. ALB listens on HTTP(S) and forwards to EC2
+3. Configure target group and health checks
 
-ALB listens on HTTP(S) and forwards to EC2
+---
 
-Configure target group and health checks
+### 🔒 Security
 
-🔒 Security
+* Allow inbound access on ports 80/443 in EC2 Security Group
+* Restrict SSH (port 22) to your IP only
+* (Optional) Use Let’s Encrypt with Certbot to enable HTTPS
 
-Allow inbound access on ports 80/443 in EC2 Security Group
-
-Restrict SSH (port 22) to your IP only
-
-(Optional) Use Let’s Encrypt with Certbot to enable HTTPS
-
+```bash
 sudo yum install certbot python3-certbot-nginx -y
 sudo certbot --nginx -d example.com -d www.example.com
+```
 
-🧪 Final URL Access Pattern
+---
+
+### 🧪 Final URL Access Pattern
 
 After setup, users can access the services using:
 
-http://<ec2-public-ip>/bran/ → Bran (Django)
+* `http://<ec2-public-ip>/bran/` → Bran (Django)
+* `http://<ec2-public-ip>/hodor/` → Hodor (Go)
 
-http://<ec2-public-ip>/hodor/ → Hodor (Go)
+This approach satisfies the **single-URL requirement** with path-based routing and integrates seamlessly with the existing Kubernetes-managed services without any internal reconfiguration.
 
-This approach satisfies the single-URL requirement with path-based routing and integrates seamlessly with the existing Kubernetes-managed services without any internal reconfiguration.
+---
 
-✅ Why This Works Well
+### ✅ Why This Works Well
 
-Simple, modular addition to existing architecture
+* Simple, modular addition to existing architecture
+* Decouples path-routing from Kubernetes (no need for Ingress controller setup)
+* Can be auto-scaled and monitored independently
+* Flexible for future expansion (`/api/`, `/admin/`, etc.)
 
-Decouples path-routing from Kubernetes (no need for Ingress controller setup)
+---
 
-Can be auto-scaled and monitored independently
+### ✅ Summary
 
-Flexible for future expansion (/api/, /admin/, etc.)
+The EC2 + NGINX method is a clean and scalable solution to achieve path-based routing without disrupting the existing Kubernetes deployments. Although I could not deploy it due to AWS account lockout, the proposed design is robust, scalable, and easy to integrate.
+
+---
+
+*(Rest of the original assignment content continues below this section unchanged...)*
+
 
 ### FamPay SRE Assignment Documentation
 
