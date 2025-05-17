@@ -766,6 +766,25 @@ kubectl port-forward svc/kind-prometheus-grafana -n monitoring 31000:80 --addres
 ```
 
 Prometheus is accessible at: [http://44.246.198.208:9090/query](http://44.246.198.208:9090/query)
+```
+### Grafana supporting screenshots:
+
+![Screenshot 1](assets/images/1.png)
+
+![Screenshot 2](assets/images/2.png)
+
+![Screenshot 3](assets/images/3.png)
+
+![Screenshot 4](assets/images/4.png)
+
+![Screenshot 5](assets/images/5.png)
+
+![Screenshot 6](assets/images/6.png)
+
+![Screenshot 7](assets/images/7.png)
+
+```
+
 
 ### Logging with CloudWatch
 
