@@ -642,11 +642,19 @@ kubectl rollout status deployment/bran -n fampay
 kubectl rollout undo deployment/bran -n fampay
 ```
 
-## Auto-scaling Strategy
+Here’s a revised and complete version of your **Auto-scaling Strategy** section with additional details on the **Cluster Autoscaler** and **Metrics Server** for completeness and operational readiness:
 
-The deployment implements both horizontal pod autoscaling and cluster autoscaling to handle varying workloads efficiently.
+---
+
+### Auto-scaling Strategy
+
+The deployment implements a robust auto-scaling mechanism at both the **pod level** and the **node level** to handle varying workloads efficiently.
+
+---
 
 ### Horizontal Pod Autoscaler (HPA)
+
+The following HPAs automatically scale the `bran` and `hodor` deployments based on CPU utilization:
 
 ```yaml
 apiVersion: autoscaling/v2
@@ -690,27 +698,11 @@ spec:
         averageUtilization: 70
 ```
 
-### Cluster Autoscaler
+---
 
-The EKS cluster is configured with autoscaling capabilities:
+### Custom Metrics Scaling (Optional)
 
-```shellscript
-eksctl create cluster \
-  --name fampay-cluster \
-  --region us-west-2 \
-  --version 1.27 \
-  --nodegroup-name standard-workers \
-  --node-type t3.medium \
-  --nodes 3 \
-  --nodes-min 3 \
-  --nodes-max 10 \
-  --with-oidc \
-  --managed
-```
-
-### Custom Metrics Scaling
-
-For more advanced scaling scenarios, we can implement custom metrics-based scaling using Prometheus metrics:
+For advanced scaling scenarios, custom application metrics (e.g., HTTP request rate) can be used with Prometheus Adapter:
 
 ```yaml
 apiVersion: autoscaling/v2
@@ -734,6 +726,68 @@ spec:
         type: AverageValue
         averageValue: 100
 ```
+
+> Requires: Prometheus + Prometheus Adapter configured to expose custom metrics to the Kubernetes metrics API.
+
+---
+
+### Cluster Autoscaler (Node-Level Scaling)
+
+The EKS cluster is provisioned using `eksctl` with node-level auto-scaling capabilities:
+
+```bash
+eksctl create cluster \
+  --name fampay-cluster \
+  --region us-west-2 \
+  --version 1.27 \
+  --nodegroup-name standard-workers \
+  --node-type t3.medium \
+  --nodes 3 \
+  --nodes-min 3 \
+  --nodes-max 10 \
+  --with-oidc \
+  --managed
+```
+
+To enable automatic **node** scaling:
+
+1. **Install Cluster Autoscaler** using Helm:
+
+   ```bash
+   helm repo add autoscaler https://kubernetes.github.io/autoscaler
+   helm repo update
+
+   helm upgrade --install cluster-autoscaler autoscaler/cluster-autoscaler \
+     --namespace kube-system \
+     --set autoDiscovery.clusterName=fampay-cluster \
+     --set awsRegion=us-west-2 \
+     --set rbac.create=true \
+     --set nodeSelector."kubernetes\.io/os"=linux \
+     --set tolerations[0].key="CriticalAddonsOnly" \
+     --set tolerations[0].operator="Exists"
+   ```
+
+2. **Attach IAM policy** for node autoscaling:
+   [Cluster Autoscaler IAM Policy](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/examples/iam-policy.json)
+
+---
+
+### Metrics Server (Required for HPA)
+
+To enable CPU/Memory-based HPA, the **Kubernetes Metrics Server** must be installed:
+
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+```
+
+Verify it's running:
+
+```bash
+kubectl get deployment metrics-server -n kube-system
+```
+
+---
+
 
 ## Monitoring, Logging, and Alerting
 
