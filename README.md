@@ -113,7 +113,7 @@ server {
     }
 
     location /bran/ {
-        proxy_pass http://<ELB-DNS>:5000/;
+        proxy_pass http://ac82ac77f794a4ddb9d8a8debc2da7a5-232ba7fb52ab3ca7.elb.us-west-2.amazonaws.com/:5000/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -121,7 +121,7 @@ server {
     }
 
     location /hodor/ {
-        proxy_pass http://<ELB-DNS>:8888/;
+        proxy_pass http://ac82ac77f794a4ddb9d8a8debc2da7a5-232ba7fb52ab3ca7.elb.us-west-2.amazonaws.com/:8888/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
