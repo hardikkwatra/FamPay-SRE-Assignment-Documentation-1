@@ -1,4 +1,4 @@
-<p style="color: red;"><strong>NOTE:</strong> All AWS resources have been stopped to save costs.</p>
+> 🚨 **NOTE:** All AWS resources have been stopped to save costs.
 
 ### FamPay SRE Assignment Documentation (Final Submission)
 
