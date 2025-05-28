@@ -313,6 +313,7 @@ spec:
       containers:
       - name: bran
         image: hardddyy/bran:v1
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         resources:
@@ -351,6 +352,7 @@ spec:
       containers:
       - name: hodor
         image: hardddyy/hodor:1
+        imagePullPolicy: Always
         ports:
         - containerPort: 8888
         resources:
