@@ -93,8 +93,8 @@ To unify the access to both services (`bran` and `hodor`) under a **single domai
 
 ### Final Access URLs
 
-* **Bran**: [https://pay.famprotocol.org/bran/](https://pay.famprotocol.org/bran/)
-* **Hodor**: [https://pay.famprotocol.org/hodor/](https://pay.famprotocol.org/hodor/)
+* **Bran**: [https://pay.famprotocol.org/bran/](https://pay1.famprotocol.org/bran/)
+* **Hodor**: [https://pay.famprotocol.org/hodor/](https://pay1.famprotocol.org/hodor/)
 
 ---
 
@@ -243,8 +243,8 @@ Let me know if you'd like me to revise the document again to reflect this stream
 
 ### Accessing the Services
 
-* Bran: [https://pay.famprotocol.org/bran/](https://pay.famprotocol.org/bran/)
-* Hodor: [https://pay.famprotocol.org/hodor/](https://pay.famprotocol.org/hodor/)
+* Bran: [https://pay.famprotocol.org/bran/](https://pay1.famprotocol.org/bran/)
+* Hodor: [https://pay.famprotocol.org/hodor/](https://pay1.famprotocol.org/hodor/)
 
 #### Hodor Dockerfile (GoLang Service)
 
